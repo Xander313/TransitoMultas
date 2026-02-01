@@ -1,3 +1,5 @@
+import 'package:sqflite/sqlite_api.dart';
+
 import '../models/ConductorModel.dart';
 import '../settings/DatabaseConnection.dart';
 
@@ -17,7 +19,15 @@ class ConductorRepository {
 
   Future<int> delete(int id) async {
     final db = await database.db;
-    return db.delete(tableName, where: "id = ?", whereArgs: [id]);
+    try {
+      return await db.delete(tableName, where: "id = ?", whereArgs: [id]);
+    } on DatabaseException catch (e) {
+      final msg = e.toString().toLowerCase();
+      if (msg.contains('foreign key constraint failed')) {
+        return 0;
+      }
+      rethrow;
+    }
   }
 
   Future<List<ConductorModel>> selectAll() async {

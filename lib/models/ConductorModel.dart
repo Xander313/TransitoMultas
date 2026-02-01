@@ -20,12 +20,12 @@ class ConductorModel {
   // Convertir a Map para SQLite
   Map<String, dynamic> toMap() {
     return {
-      'id_conductor': id,
+      'id': id,
       'cedula': cedula,
       'nombres': nombres,
       'apellidos': apellidos,
-      'numero_licencia': numeroLicencia,
-      'tipo_licencia': tipoLicencia,
+      'numeroLicencia': numeroLicencia,
+      'tipoLicencia': tipoLicencia,
       'telefono': telefono,
     };
   }
@@ -33,12 +33,12 @@ class ConductorModel {
   // Convertir desde SQLite
   factory ConductorModel.fromMap(Map<String, dynamic> data) {
     return ConductorModel(
-      id: data['id_conductor'] as int?,
+      id: data['id'] as int?,
       cedula: (data['cedula'] ?? '').toString(),
       nombres: (data['nombres'] ?? '').toString(),
       apellidos: (data['apellidos'] ?? '').toString(),
-      numeroLicencia: (data['numero_licencia'] ?? '').toString(),
-      tipoLicencia: (data['tipo_licencia'] ?? '').toString(),
+      numeroLicencia: (data['numeroLicencia'] ?? '').toString(),
+      tipoLicencia: (data['tipoLicencia'] ?? '').toString(),
       telefono: (data['telefono'] ?? '').toString(),
     );
   }

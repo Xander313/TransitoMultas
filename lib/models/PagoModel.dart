@@ -1,14 +1,14 @@
 class PagoModel {
-  int? idPago;
+  int? id;
   String fechaPago;
   double montoPagado;
-  String metodoPago;
+  String metodoPago; // EFECTIVO | TARJETA | TRANSFERENCIA
   String referencia;
   int idMulta;
   String? comprobantePath;
 
   PagoModel({
-    this.idPago,
+    this.id,
     required this.fechaPago,
     required this.montoPagado,
     required this.metodoPago,
@@ -17,31 +17,29 @@ class PagoModel {
     this.comprobantePath,
   });
 
-  // Convertir a Map para SQLite
   Map<String, dynamic> toMap() {
     return {
-      'id_pago': idPago,
-      'fecha_pago': fechaPago,
-      'monto_pagado': montoPagado,
-      'metodo_pago': metodoPago,
+      'id': id,
+      'fechaPago': fechaPago,
+      'montoPagado': montoPagado,
+      'metodoPago': metodoPago,
       'referencia': referencia,
-      'id_multa': idMulta,
-      'comprobante_path': comprobantePath,
+      'idMulta': idMulta,
+      'comprobantePath': comprobantePath,
     };
   }
 
-  // Convertir desde SQLite
   factory PagoModel.fromMap(Map<String, dynamic> data) {
     return PagoModel(
-      idPago: data['id_pago'] as int?,
-      fechaPago: (data['fecha_pago'] ?? '').toString(),
-      montoPagado: data['monto_pagado'] is int
-          ? (data['monto_pagado'] as int).toDouble()
-          : (data['monto_pagado'] as num).toDouble(),
-      metodoPago: (data['metodo_pago'] ?? '').toString(),
+      id: data['id'] as int?,
+      fechaPago: (data['fechaPago'] ?? '').toString(),
+      montoPagado: data['montoPagado'] is int
+          ? (data['montoPagado'] as int).toDouble()
+          : (data['montoPagado'] as num).toDouble(),
+      metodoPago: (data['metodoPago'] ?? '').toString(),
       referencia: (data['referencia'] ?? '').toString(),
-      idMulta: (data['id_multa'] as num).toInt(),
-      comprobantePath: data['comprobante_path']?.toString(),
+      idMulta: (data['idMulta'] as num).toInt(),
+      comprobantePath: data['comprobantePath']?.toString(),
     );
   }
 }

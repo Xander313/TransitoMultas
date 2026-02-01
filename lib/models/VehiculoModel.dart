@@ -17,29 +17,27 @@ class VehiculoModel {
     required this.idConductor,
   });
 
-  // Convertir a Map para SQLite
   Map<String, dynamic> toMap() {
     return {
-      'id_vehiculo': id,
+      'id': id,
       'placa': placa,
       'marca': marca,
       'modelo': modelo,
       'color': color,
       'anio': anio,
-      'id_conductor': idConductor,
+      'idConductor': idConductor,
     };
   }
 
-  // Convertir desde SQLite
   factory VehiculoModel.fromMap(Map<String, dynamic> data) {
     return VehiculoModel(
-      id: data['id_vehiculo'] as int?,
+      id: data['id'] as int?,
       placa: (data['placa'] ?? '').toString(),
       marca: (data['marca'] ?? '').toString(),
       modelo: (data['modelo'] ?? '').toString(),
       color: (data['color'] ?? '').toString(),
       anio: (data['anio'] as num).toInt(),
-      idConductor: (data['id_conductor'] as num).toInt(),
+      idConductor: (data['idConductor'] as num).toInt(),
     );
   }
 }

@@ -19,33 +19,31 @@ class MultaModel {
     required this.idTipoInfraccion,
   });
 
-  // Convertir a Map para SQLite
   Map<String, dynamic> toMap() {
     return {
-      'id_multa': id,
-      'fecha_multa': fechaMulta,
+      'id': id,
+      'fechaMulta': fechaMulta,
       'lugar': lugar,
-      'monto_final': montoFinal,
+      'montoFinal': montoFinal,
       'estado': estado,
-      'id_conductor': idConductor,
-      'id_vehiculo': idVehiculo,
-      'id_tipo_infraccion': idTipoInfraccion,
+      'idConductor': idConductor,
+      'idVehiculo': idVehiculo,
+      'idTipoInfraccion': idTipoInfraccion,
     };
   }
 
-  // Convertir desde SQLite
   factory MultaModel.fromMap(Map<String, dynamic> data) {
     return MultaModel(
-      id: data['id_multa'] as int?,
-      fechaMulta: (data['fecha_multa'] ?? '').toString(),
+      id: data['id'] as int?,
+      fechaMulta: (data['fechaMulta'] ?? '').toString(),
       lugar: (data['lugar'] ?? '').toString(),
-      montoFinal: data['monto_final'] is int
-          ? (data['monto_final'] as int).toDouble()
-          : (data['monto_final'] as num).toDouble(),
+      montoFinal: data['montoFinal'] is int
+          ? (data['montoFinal'] as int).toDouble()
+          : (data['montoFinal'] as num).toDouble(),
       estado: (data['estado'] ?? '').toString(),
-      idConductor: (data['id_conductor'] as num).toInt(),
-      idVehiculo: (data['id_vehiculo'] as num).toInt(),
-      idTipoInfraccion: (data['id_tipo_infraccion'] as num).toInt(),
+      idConductor: (data['idConductor'] as num).toInt(),
+      idVehiculo: (data['idVehiculo'] as num).toInt(),
+      idTipoInfraccion: (data['idTipoInfraccion'] as num).toInt(),
     );
   }
 }

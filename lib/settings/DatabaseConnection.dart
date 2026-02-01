@@ -26,69 +26,74 @@ class DatabaseConnection {
       },
       onCreate: (Database db, int version) async {
         await db.execute("""
-        CREATE TABLE tipoInfraccion (
-          id_tipo_infraccion INTEGER PRIMARY KEY AUTOINCREMENT,
-          codigo TEXT NOT NULL,
-          descripcion TEXT NOT NULL,
-          gravedad TEXT NOT NULL, 
-          monto_base REAL NOT NULL,
-          puntos_licencia INTEGER NOT NULL
-        );
-          
-        """);
+CREATE TABLE tipoInfraccion (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  codigo TEXT NOT NULL,
+  descripcion TEXT NOT NULL,
+  gravedad TEXT NOT NULL,
+  montoBase REAL NOT NULL,
+  puntosLicencia INTEGER NOT NULL
+);
+
+    """);
 
         await db.execute("""
-        CREATE TABLE conductor (
-          id_conductor INTEGER PRIMARY KEY AUTOINCREMENT,
-          cedula TEXT NOT NULL,
-          nombres TEXT NOT NULL,
-          apellidos TEXT NOT NULL,
-          numero_licencia TEXT NOT NULL,
-          tipo_licencia TEXT NOT NULL,
-          telefono TEXT NOT NULL
-        );
-        """);
-        await db.execute("""
-        CREATE TABLE vehiculo (
-          id_vehiculo INTEGER PRIMARY KEY AUTOINCREMENT,
-          placa TEXT NOT NULL,
-          marca TEXT NOT NULL,
-          modelo TEXT NOT NULL,
-          color TEXT NOT NULL,
-          anio INTEGER NOT NULL,
-          id_conductor INTEGER NOT NULL,
-          FOREIGN KEY (id_conductor) REFERENCES conductores(id_conductor)
-        );
-        """);
+CREATE TABLE conductor (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  cedula TEXT NOT NULL,
+  nombres TEXT NOT NULL,
+  apellidos TEXT NOT NULL,
+  numeroLicencia TEXT NOT NULL,
+  tipoLicencia TEXT NOT NULL,
+  telefono TEXT NOT NULL
+);
+
+    """);
 
         await db.execute("""
-        CREATE TABLE multa (
-          id_multa INTEGER PRIMARY KEY AUTOINCREMENT,
-          fecha_multa TEXT NOT NULL,
-          lugar TEXT NOT NULL,
-          monto_final REAL NOT NULL,
-          estado TEXT NOT NULL, -- PENDIENTE | PAGADA
-          id_conductor INTEGER NOT NULL,
-          id_vehiculo INTEGER NOT NULL,
-          id_tipo_infraccion INTEGER NOT NULL,
-          FOREIGN KEY (id_conductor) REFERENCES conductores(id_conductor),
-          FOREIGN KEY (id_vehiculo) REFERENCES vehiculos(id_vehiculo),
-          FOREIGN KEY (id_tipo_infraccion) REFERENCES tipos_infraccion(id_tipo_infraccion)
-        );
-        """);
+CREATE TABLE vehiculo (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  placa TEXT NOT NULL,
+  marca TEXT NOT NULL,
+  modelo TEXT NOT NULL,
+  color TEXT NOT NULL,
+  anio INTEGER NOT NULL,
+  idConductor INTEGER NOT NULL,
+  FOREIGN KEY (idConductor) REFERENCES conductor(id) ON DELETE RESTRICT ON UPDATE CASCADE
+);
+
+    """);
 
         await db.execute("""
-        CREATE TABLE pagos (
-          id_pago INTEGER PRIMARY KEY AUTOINCREMENT,
-          fecha_pago TEXT NOT NULL,
-          monto_pagado REAL NOT NULL,
-          metodo_pago TEXT NOT NULL, 
-          referencia TEXT NOT NULL,
-          id_multa INTEGER NOT NULL,
-          comprobante_path TEXT, 
-          FOREIGN KEY (id_multa) REFERENCES multas(id_multa)
-        );
-        """);
+CREATE TABLE multa (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  fechaMulta TEXT NOT NULL,
+  lugar TEXT NOT NULL,
+  montoFinal REAL NOT NULL,
+  estado TEXT NOT NULL,      
+  idConductor INTEGER NOT NULL,
+  idVehiculo INTEGER NOT NULL,
+  idTipoInfraccion INTEGER NOT NULL,
+  FOREIGN KEY (idConductor) REFERENCES conductor(id) ON DELETE RESTRICT ON UPDATE CASCADE,
+  FOREIGN KEY (idVehiculo) REFERENCES vehiculo(id) ON DELETE RESTRICT ON UPDATE CASCADE,
+  FOREIGN KEY (idTipoInfraccion) REFERENCES tipoInfraccion(id) ON DELETE RESTRICT ON UPDATE CASCADE
+);
+
+    """);
+
+        await db.execute("""
+CREATE TABLE pago (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  fechaPago TEXT NOT NULL,
+  montoPagado REAL NOT NULL,
+  metodoPago TEXT NOT NULL,
+  referencia TEXT NOT NULL,
+  idMulta INTEGER NOT NULL,
+  comprobantePath TEXT,
+  FOREIGN KEY (idMulta) REFERENCES multa(id) ON DELETE RESTRICT ON UPDATE CASCADE
+);
+
+    """);
       },
     );
   }

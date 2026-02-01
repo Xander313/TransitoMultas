@@ -15,29 +15,27 @@ class TipoInfraccionModel {
     required this.puntosLicencia,
   });
 
-  // Convertir a Map para SQLite
   Map<String, dynamic> toMap() {
     return {
-      'id_tipo_infraccion': id,
+      'id': id,
       'codigo': codigo,
       'descripcion': descripcion,
       'gravedad': gravedad,
-      'monto_base': montoBase,
-      'puntos_licencia': puntosLicencia,
+      'montoBase': montoBase,
+      'puntosLicencia': puntosLicencia,
     };
   }
 
-  // Convertir desde SQLite
   factory TipoInfraccionModel.fromMap(Map<String, dynamic> data) {
     return TipoInfraccionModel(
-      id: data['id_tipo_infraccion'] as int?,
+      id: data['id'] as int?,
       codigo: (data['codigo'] ?? '').toString(),
       descripcion: (data['descripcion'] ?? '').toString(),
       gravedad: (data['gravedad'] ?? '').toString(),
-      montoBase: data['monto_base'] is int
-          ? (data['monto_base'] as int).toDouble()
-          : (data['monto_base'] as num).toDouble(),
-      puntosLicencia: (data['puntos_licencia'] as num).toInt(),
+      montoBase: data['montoBase'] is int
+          ? (data['montoBase'] as int).toDouble()
+          : (data['montoBase'] as num).toDouble(),
+      puntosLicencia: (data['puntosLicencia'] as num).toInt(),
     );
   }
 }
