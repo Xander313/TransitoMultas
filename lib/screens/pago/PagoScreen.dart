@@ -1,19 +1,19 @@
 import 'package:flutter/material.dart';
 
-import '../../models/MultaModel.dart';
-import '../../repository/MultaReposiroty.dart';
+import '../../models/PagoModel.dart';
+import '../../repository/PagoRepository.dart';
 
-class MultaScreen extends StatefulWidget {
-  const MultaScreen({super.key});
+class PagoScreen extends StatefulWidget {
+  const PagoScreen({super.key});
 
   @override
-  State<MultaScreen> createState() => _MultaScreenState();
+  State<PagoScreen> createState() => _PagoScreenState();
 }
 
-class _MultaScreenState extends State<MultaScreen> {
-  final MultaRepository repo = MultaRepository();
+class _PagoScreenState extends State<PagoScreen> {
+  final PagoRepository repo = PagoRepository();
 
-  List<MultaModel> items = [];
+  List<PagoModel> items = [];
   bool cargando = true;
 
   @override
@@ -29,24 +29,26 @@ class _MultaScreenState extends State<MultaScreen> {
     setState(() => cargando = false);
   }
 
-  Color _estadoBg(String estado) {
-    final e = estado.toUpperCase();
-    if (e == 'PAGADA') return const Color(0xFFDCFCE7);
-    return const Color(0xFFFEF3C7);
+  Color _metodoBg(String metodo) {
+    final m = metodo.toUpperCase();
+    if (m == 'EFECTIVO') return const Color.fromRGBO(219, 234, 254, 1); // azul suave
+    if (m == 'TARJETA') return const Color.fromRGBO(254, 243, 199, 1); // ámbar suave
+    return const Color.fromRGBO(220, 252, 231, 1); // transferencia -> verde suave
   }
 
-  Color _estadoFg(String estado) {
-    final e = estado.toUpperCase();
-    if (e == 'PAGADA') return const Color.fromRGBO(22, 101, 52, 1);
-    return const Color.fromRGBO(146, 64, 14, 1);
+  Color _metodoFg(String metodo) {
+    final m = metodo.toUpperCase();
+    if (m == 'EFECTIVO') return const Color.fromRGBO(30, 64, 175, 1); // azul
+    if (m == 'TARJETA') return const Color.fromRGBO(146, 64, 14, 1); // ámbar oscuro
+    return const Color.fromRGBO(22, 101, 52, 1); // verde oscuro
   }
 
   void eliminarItem(int id) {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        title: const Text("¿Seguro que desea eliminar esta multa?"),
-        content: Text("ID Multa: $id"),
+        title: const Text("¿Seguro que desea eliminar este pago?"),
+        content: Text("ID Pago: $id"),
         actions: [
           TextButton(
             onPressed: () async {
@@ -58,15 +60,13 @@ class _MultaScreenState extends State<MultaScreen> {
 
               if (res > 0) {
                 messenger.showSnackBar(
-                  const SnackBar(content: Text("Multa eliminada correctamente")),
+                  const SnackBar(content: Text("Pago eliminado correctamente")),
                 );
                 await cargarItems();
               } else {
                 messenger.showSnackBar(
                   const SnackBar(
-                    content: Text(
-                      "No se puede eliminar: hay referencias (pago asociado o relaciones).",
-                    ),
+                    content: Text("No se puede eliminar: hay referencias en otros registros."),
                   ),
                 );
               }
@@ -85,7 +85,7 @@ class _MultaScreenState extends State<MultaScreen> {
       backgroundColor: const Color.fromRGBO(247, 249, 252, 1),
 
       appBar: AppBar(
-        title: const Text("Listado de Multasssss"),
+        title: const Text("Listado de Pagos"),
         backgroundColor: const Color.fromRGBO(0, 66, 137, 1),
         foregroundColor: Colors.white,
       ),
@@ -107,11 +107,14 @@ class _MultaScreenState extends State<MultaScreen> {
                     side: const BorderSide(color: Color.fromRGBO(229, 231, 235, 1), width: 1),
                   ),
                   child: ListTile(
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
 
                     title: Text(
-                      "Lugar: ${item.lugar}",
-                      style: const TextStyle(fontWeight: FontWeight.w700, color: Color(0xFF111827)),
+                      "Pago: \$${item.montoPagado.toStringAsFixed(2)}",
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w700,
+                        color: Color.fromRGBO(17, 24, 39, 1),
+                      ),
                     ),
 
                     subtitle: Padding(
@@ -120,33 +123,55 @@ class _MultaScreenState extends State<MultaScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            "Fecha: ${item.fechaMulta}",
-                            style: const TextStyle(color: Color(0xFF6B7280)),
+                            "Fecha: ${item.fechaPago}",
+                            style: const TextStyle(color: Color.fromRGBO(107, 114, 128, 1)),
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            "Monto: \$${item.montoFinal.toStringAsFixed(2)}  •  Conductor ID: ${item.idConductor}  •  Vehículo ID: ${item.idVehiculo}",
-                            style: const TextStyle(color: Color(0xFF6B7280)),
+                            "Referencia: ${item.referencia}  •  Multa ID: ${item.idMulta}",
+                            style: const TextStyle(color: Color.fromRGBO(107, 114, 128, 1)),
                           ),
                           const SizedBox(height: 8),
 
+                          // Badge método
                           Align(
                             alignment: Alignment.centerLeft,
                             child: Container(
                               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                               decoration: BoxDecoration(
-                                color: _estadoBg(item.estado),
+                                color: _metodoBg(item.metodoPago),
                                 borderRadius: BorderRadius.circular(999),
                               ),
                               child: Text(
-                                item.estado.toUpperCase(),
+                                item.metodoPago.toUpperCase(),
                                 style: TextStyle(
                                   fontWeight: FontWeight.w700,
-                                  color: _estadoFg(item.estado),
+                                  color: _metodoFg(item.metodoPago),
                                 ),
                               ),
                             ),
                           ),
+
+                          // Indicador si hay comprobante
+                          if (item.comprobantePath != null &&
+                              item.comprobantePath!.trim().isNotEmpty)
+                            const Padding(
+                              padding: EdgeInsets.only(top: 8),
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    Icons.attachment,
+                                    size: 18,
+                                    color: Color.fromRGBO(107, 114, 128, 1),
+                                  ),
+                                  SizedBox(width: 6),
+                                  Text(
+                                    "Comprobante adjunto",
+                                    style: TextStyle(color: Color.fromRGBO(107, 114, 128, 1)),
+                                  ),
+                                ],
+                              ),
+                            ),
                         ],
                       ),
                     ),
@@ -156,7 +181,7 @@ class _MultaScreenState extends State<MultaScreen> {
                       children: [
                         IconButton(
                           onPressed: () async {
-                            await Navigator.pushNamed(context, '/multa/form', arguments: item);
+                            await Navigator.pushNamed(context, '/pago/form', arguments: item);
                             cargarItems();
                           },
                           icon: const Icon(Icons.edit, color: Color.fromRGBO(245, 158, 11, 1)),
@@ -176,7 +201,7 @@ class _MultaScreenState extends State<MultaScreen> {
         backgroundColor: const Color.fromRGBO(0, 66, 137, 1),
         foregroundColor: Colors.white,
         onPressed: () async {
-          await Navigator.pushNamed(context, '/multa/form');
+          await Navigator.pushNamed(context, '/pago/form');
           cargarItems();
         },
         child: const Icon(Icons.add),
