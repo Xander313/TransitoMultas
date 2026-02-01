@@ -16,7 +16,7 @@ class DatabaseConnection {
 
   Future<Database> initDB() async {
     final routeDB = await getDatabasesPath();
-    final absoluteRoute = join(routeDB, 'b.db');
+    final absoluteRoute = join(routeDB, 'c.db');
 
     return await openDatabase(
       absoluteRoute,
@@ -85,8 +85,7 @@ CREATE TABLE pago (
   fechaPago TEXT NOT NULL,
   montoPagado REAL NOT NULL,
   metodoPago TEXT NOT NULL,
-  referencia TEXT NOT NULL,
-  idMulta INTEGER NOT NULL,
+  idMulta INTEGER NOT NULL UNIQUE,
   comprobantePath TEXT,
   FOREIGN KEY (idMulta) REFERENCES multa(id) ON DELETE RESTRICT ON UPDATE CASCADE
 );
@@ -131,8 +130,8 @@ INSERT INTO multa (fechaMulta, lugar, montoFinal, estado, idConductor, idVehicul
 
           // pago (solo para la multa que está PAGADA -> idMulta = 2)
           await txn.execute("""
-INSERT INTO pago (fechaPago, montoPagado, metodoPago, referencia, idMulta, comprobantePath) VALUES
-('2026-01-29', 40.00, 'EFECTIVO', 'REC-0001', 2, NULL);
+INSERT INTO pago (fechaPago, montoPagado, metodoPago, idMulta, comprobantePath) VALUES
+('2026-01-29', 40.00, 'EFECTIVO', 2, NULL);
 """);
         });
       },

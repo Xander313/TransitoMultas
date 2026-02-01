@@ -26,7 +26,6 @@ class _PagoFormScreenState extends State<PagoFormScreen> {
 
   final fechaPagoController = TextEditingController();
   final montoPagadoController = TextEditingController();
-  final referenciaController = TextEditingController();
 
   DateTime? fechaPagoValue;
 
@@ -47,12 +46,11 @@ class _PagoFormScreenState extends State<PagoFormScreen> {
   final List<String> metodos = const ["EFECTIVO", "TARJETA", "TRANSFERENCIA"];
   String? metodoSeleccionado;
 
-  // Archivo (ruta relativa para SQLite)
-  String? comprobantePathActual; // lo que se guardará
-  String? comprobantePathOriginal; // lo que venía en edición
+  String? comprobantePathActual;
+  String? comprobantePathOriginal;
   bool borrarOriginalAlGuardar = false;
 
-  int? preselectMultaId; // por si algún día llamas a /pago/form con un id de multa
+  int? preselectMultaId;
 
   @override
   void didChangeDependencies() {
@@ -67,7 +65,6 @@ class _PagoFormScreenState extends State<PagoFormScreen> {
 
       fechaPagoController.text = item!.fechaPago;
       montoPagadoController.text = item!.montoPagado.toStringAsFixed(2);
-      referenciaController.text = item!.referencia;
       metodoSeleccionado = item!.metodoPago;
 
       comprobantePathOriginal = item!.comprobantePath;
@@ -76,15 +73,9 @@ class _PagoFormScreenState extends State<PagoFormScreen> {
       final d = DateTime.tryParse(item!.fechaPago);
       if (d != null) fechaPagoValue = d;
     } else {
-      // Nuevo (defaults)
       final hoy = DateTime.now();
       fechaPagoValue = hoy;
-      fechaPagoController.text = hoy.toIso8601String().substring(0, 10); // YYYY-MM-DD
-    }
-
-    // Soporte opcional: si te pasan un int como id de multa
-    if (args is int) {
-      preselectMultaId = args;
+      fechaPagoController.text = hoy.toIso8601String().substring(0, 10);
     }
 
     cargarMultas();
@@ -93,9 +84,8 @@ class _PagoFormScreenState extends State<PagoFormScreen> {
   Future<void> cargarMultas() async {
     setState(() => cargando = true);
 
-    final data = await multaRepo.selectAll();
+    final data = await multaRepo.selectPendientes();
 
-    // Preselección: edición -> item.idMulta, o si viene id por argumentos
     MultaModel? pre;
     final targetId = item?.idMulta ?? preselectMultaId;
 
@@ -113,7 +103,16 @@ class _PagoFormScreenState extends State<PagoFormScreen> {
           idTipoInfraccion: 0,
         ),
       );
-      if (pre.id == -1) pre = null;
+
+      if (pre.id == -1) {
+        final actual = await multaRepo.selectOne(targetId);
+        if (actual != null) {
+          data.insert(0, actual);
+          pre = actual;
+        } else {
+          pre = null;
+        }
+      }
     }
 
     setState(() {
@@ -121,15 +120,9 @@ class _PagoFormScreenState extends State<PagoFormScreen> {
       selectedMulta = pre;
       cargando = false;
     });
-
-    // Si es nuevo y hay multa seleccionada, autollenar monto con montoFinal
-    if (item == null && selectedMulta != null && montoPagadoController.text.trim().isEmpty) {
-      montoPagadoController.text = selectedMulta!.montoFinal.toStringAsFixed(2);
-    }
   }
 
-  Future<void> _pickComprobante() async {
-    // Si ya hay un archivo "nuevo" (temporal) y no es el original, lo borramos para no dejar basura
+  Future<void> selectComprobante() async {
     if (comprobantePathActual != null &&
         comprobantePathActual!.isNotEmpty &&
         comprobantePathActual != comprobantePathOriginal) {
@@ -160,15 +153,13 @@ class _PagoFormScreenState extends State<PagoFormScreen> {
     setState(() {
       comprobantePathActual = relative;
 
-      // Si estábamos editando y había un original, marcar para borrar al guardar (reemplazo)
       if (comprobantePathOriginal != null && comprobantePathOriginal!.isNotEmpty) {
         borrarOriginalAlGuardar = true;
       }
     });
   }
 
-  Future<void> _clearComprobante() async {
-    // Si el actual es un archivo nuevo temporal, borrarlo ya
+  Future<void> limpiarComprobante() async {
     if (comprobantePathActual != null &&
         comprobantePathActual!.isNotEmpty &&
         comprobantePathActual != comprobantePathOriginal) {
@@ -178,30 +169,19 @@ class _PagoFormScreenState extends State<PagoFormScreen> {
     setState(() {
       comprobantePathActual = null;
 
-      // Si había original, marcar para borrar al guardar (el usuario lo quitó)
       if (comprobantePathOriginal != null && comprobantePathOriginal!.isNotEmpty) {
         borrarOriginalAlGuardar = true;
       }
     });
   }
 
-  Future<void> _cleanupTempIfNeeded() async {
-    // Si no se guardó y dejamos un archivo nuevo temporal, borrarlo
+  Future<void> limpiarTemp() async {
     if (!guardado &&
         comprobantePathActual != null &&
         comprobantePathActual!.isNotEmpty &&
         comprobantePathActual != comprobantePathOriginal) {
       await MediaService.deleteFile(comprobantePathActual!);
     }
-  }
-
-  @override
-  void dispose() {
-    _cleanupTempIfNeeded();
-    fechaPagoController.dispose();
-    montoPagadoController.dispose();
-    referenciaController.dispose();
-    super.dispose();
   }
 
   @override
@@ -307,24 +287,6 @@ class _PagoFormScreenState extends State<PagoFormScreen> {
 
                     const SizedBox(height: 14),
 
-                    TextFormField(
-                      controller: referenciaController,
-                      validator: (v) {
-                        if (v == null || v.trim().isEmpty) return "La referencia es obligatoria";
-                        if (v.trim().length > 60) return "Máximo 60 caracteres";
-                        return null;
-                      },
-                      decoration: InputDecoration(
-                        labelText: "Referencia",
-                        hintText: "Ej: REC-0001",
-                        filled: true,
-                        fillColor: const Color.fromRGBO(255, 255, 255, 1),
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(15)),
-                      ),
-                    ),
-
-                    const SizedBox(height: 14),
-
                     // Selector de archivo
                     FilePickerField(
                       label: "Comprobante (opcional)",
@@ -332,9 +294,9 @@ class _PagoFormScreenState extends State<PagoFormScreen> {
                           ? null
                           : p.basename(comprobantePathActual!),
                       hasFile: (comprobantePathActual != null && comprobantePathActual!.isNotEmpty),
-                      onPick: _pickComprobante,
+                      onPick: selectComprobante,
                       onClear: (comprobantePathActual != null && comprobantePathActual!.isNotEmpty)
-                          ? _clearComprobante
+                          ? limpiarComprobante
                           : null,
                     ),
 
@@ -353,7 +315,7 @@ class _PagoFormScreenState extends State<PagoFormScreen> {
                         Expanded(
                           child: TextButton(
                             onPressed: () async {
-                              await _cleanupTempIfNeeded();
+                              await limpiarTemp();
                               if (!mounted) return;
                               Navigator.pop(context);
                             },
@@ -383,7 +345,6 @@ class _PagoFormScreenState extends State<PagoFormScreen> {
                                 fechaPago: fechaPagoController.text.trim(),
                                 montoPagado: monto,
                                 metodoPago: metodoSeleccionado!,
-                                referencia: referenciaController.text.trim(),
                                 idMulta: selectedMulta!.id!,
                                 comprobantePath: comprobantePathActual,
                               );

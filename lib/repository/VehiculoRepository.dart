@@ -32,7 +32,7 @@ class VehiculoRepository {
 
   Future<List<VehiculoModel>> selectAll() async {
     final db = await database.db;
-    final response = await db.query(tableName);
+    final response = await db.query(tableName, orderBy: "id DESC");
     return response.map((e) => VehiculoModel.fromMap(e)).toList();
   }
 

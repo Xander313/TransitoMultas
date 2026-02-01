@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'screens/RootScreen.dart';
 import 'screens/multa/MultaFormScreen.dart';
 import 'screens/multa/MultaScreedn.dart';
 import 'screens/pago/PagoFormScreen.dart';
@@ -17,9 +18,10 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       initialRoute: ':/',
       routes: {
-        '/pago': (context) => MultaScreen(),
+        '/': (context) => RootScreen(),
+        '/multa': (context) => MultaScreen(),
         '/multa/form': (context) => MultaFormScreen(),
-        '/': (context) => PagoScreen(),
+        '/pago': (context) => PagoScreen(),
         '/pago/form': (context) => PagoFormScreen(),
       },
     );

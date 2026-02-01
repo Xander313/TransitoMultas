@@ -2,8 +2,7 @@ class PagoModel {
   int? id;
   String fechaPago;
   double montoPagado;
-  String metodoPago; // EFECTIVO | TARJETA | TRANSFERENCIA
-  String referencia;
+  String metodoPago;
   int idMulta;
   String? comprobantePath;
 
@@ -12,7 +11,6 @@ class PagoModel {
     required this.fechaPago,
     required this.montoPagado,
     required this.metodoPago,
-    required this.referencia,
     required this.idMulta,
     this.comprobantePath,
   });
@@ -23,7 +21,6 @@ class PagoModel {
       'fechaPago': fechaPago,
       'montoPagado': montoPagado,
       'metodoPago': metodoPago,
-      'referencia': referencia,
       'idMulta': idMulta,
       'comprobantePath': comprobantePath,
     };
@@ -37,7 +34,6 @@ class PagoModel {
           ? (data['montoPagado'] as int).toDouble()
           : (data['montoPagado'] as num).toDouble(),
       metodoPago: (data['metodoPago'] ?? '').toString(),
-      referencia: (data['referencia'] ?? '').toString(),
       idMulta: (data['idMulta'] as num).toInt(),
       comprobantePath: data['comprobantePath']?.toString(),
     );

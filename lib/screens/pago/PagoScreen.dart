@@ -48,7 +48,11 @@ class _PagoScreenState extends State<PagoScreen> {
       context: context,
       builder: (_) => AlertDialog(
         title: const Text("¿Seguro que desea eliminar este pago?"),
-        content: Text("ID Pago: $id"),
+        content: Text(
+          "ID Pago: $id\n\n"
+          "Al eliminar el pago, la multa asociada volverá a estado PENDIENTE.",
+        ),
+
         actions: [
           TextButton(
             onPressed: () async {
@@ -128,7 +132,7 @@ class _PagoScreenState extends State<PagoScreen> {
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            "Referencia: ${item.referencia}  •  Multa ID: ${item.idMulta}",
+                            "Multa ID: ${item.idMulta}",
                             style: const TextStyle(color: Color.fromRGBO(107, 114, 128, 1)),
                           ),
                           const SizedBox(height: 8),

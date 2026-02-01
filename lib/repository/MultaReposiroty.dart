@@ -32,7 +32,18 @@ class MultaRepository {
 
   Future<List<MultaModel>> selectAll() async {
     final db = await database.db;
-    final response = await db.query(tableName);
+    final response = await db.query(tableName, orderBy: "id DESC");
+    return response.map((e) => MultaModel.fromMap(e)).toList();
+  }
+
+  Future<List<MultaModel>> selectPendientes() async {
+    final db = await database.db;
+    final response = await db.query(
+      tableName,
+      where: "estado = ?",
+      whereArgs: ["PENDIENTE"],
+      orderBy: "id DESC",
+    );
     return response.map((e) => MultaModel.fromMap(e)).toList();
   }
 

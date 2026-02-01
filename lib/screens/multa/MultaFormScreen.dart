@@ -47,9 +47,6 @@ class _MultaFormScreenState extends State<MultaFormScreen> {
   List<TipoInfraccionModel> tipos = [];
   TipoInfraccionModel? selectedTipo;
 
-  final List<String> estados = const ["PENDIENTE", "PAGADA"];
-  String? estadoSeleccionado;
-
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -60,9 +57,17 @@ class _MultaFormScreenState extends State<MultaFormScreen> {
     if (args is MultaModel) {
       item = args;
 
+      final esPagada = item != null && item!.estado.toUpperCase() == "PAGADA";
+      if (esPagada) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (!mounted) return;
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(const SnackBar(content: Text("Multa PAGADA: no se puede editar.")));
+        });
+      }
       lugarController.text = item!.lugar;
       fechaMultaController.text = item!.fechaMulta;
-      estadoSeleccionado = item!.estado;
 
       montoFinalController.text = item!.montoFinal.toStringAsFixed(2);
 
@@ -71,11 +76,9 @@ class _MultaFormScreenState extends State<MultaFormScreen> {
         fechaMultaValue = d;
       }
     } else {
-      // Defaults para nuevo
-      estadoSeleccionado = "PENDIENTE";
       final hoy = DateTime.now();
       fechaMultaValue = hoy;
-      fechaMultaController.text = hoy.toIso8601String().substring(0, 10); // YYYY-MM-DD
+      fechaMultaController.text = hoy.toIso8601String().substring(0, 10);
     }
 
     cargarCombos();
@@ -84,58 +87,35 @@ class _MultaFormScreenState extends State<MultaFormScreen> {
   Future<void> cargarCombos() async {
     setState(() => cargando = true);
 
-    // Cargar data
     final dataConductores = await conductorRepo.selectAll();
     final dataVehiculos = await vehiculoRepo.selectAll();
     final dataTipos = await tipoRepo.selectAll();
 
-    // Preselecciones (modo editar)
     ConductorModel? preCon;
     VehiculoModel? preVeh;
     TipoInfraccionModel? preTipo;
 
     if (item != null) {
-      preCon = dataConductores.firstWhere(
-        (c) => c.id == item!.idConductor,
-        orElse: () => ConductorModel(
-          id: -1,
-          cedula: "",
-          nombres: "",
-          apellidos: "",
-          numeroLicencia: "",
-          tipoLicencia: "",
-          telefono: "",
-        ),
-      );
-      if (preCon.id == -1) preCon = null;
+      try {
+        preCon = dataConductores.firstWhere((c) => c.id == item!.idConductor);
+      } catch (_) {
+        preCon = null;
+      }
 
-      preVeh = dataVehiculos.firstWhere(
-        (v) => v.id == item!.idVehiculo,
-        orElse: () => VehiculoModel(
-          id: -1,
-          placa: "",
-          marca: "",
-          modelo: "",
-          color: "",
-          anio: 0,
-          idConductor: -1,
-        ),
-      );
-      if (preVeh.id == -1) preVeh = null;
+      try {
+        preVeh = dataVehiculos.firstWhere((v) => v.id == item!.idVehiculo);
+      } catch (_) {
+        preVeh = null;
+      }
 
-      preTipo = dataTipos.firstWhere(
-        (t) => t.id == item!.idTipoInfraccion,
-        orElse: () => TipoInfraccionModel(
-          id: -1,
-          codigo: "",
-          descripcion: "",
-          gravedad: "",
-          montoBase: 0,
-          puntosLicencia: 0,
-        ),
-      );
-      if (preTipo.id == -1) preTipo = null;
+      try {
+        preTipo = dataTipos.firstWhere((t) => t.id == item!.idTipoInfraccion);
+      } catch (_) {
+        preTipo = null;
+      }
     }
+
+    if (!mounted) return;
 
     setState(() {
       conductores = dataConductores;
@@ -145,19 +125,16 @@ class _MultaFormScreenState extends State<MultaFormScreen> {
       selectedConductor = preCon;
       selectedTipo = preTipo;
 
-      // Filtrar vehículos por conductor si existe
       vehiculosFiltrados = (selectedConductor?.id != null)
           ? vehiculosAll.where((v) => v.idConductor == selectedConductor!.id).toList()
           : vehiculosAll;
 
-      // Si edición: intentar mantener el vehículo, si pertenece al conductor
       if (preVeh != null && vehiculosFiltrados.any((v) => v.id == preVeh!.id)) {
         selectedVehiculo = preVeh;
       } else {
         selectedVehiculo = null;
       }
 
-      // Autollenar monto si hay tipo seleccionado (solo si está vacío o es nuevo)
       if (selectedTipo != null && (montoFinalController.text.trim().isEmpty || item == null)) {
         montoFinalController.text = selectedTipo!.montoBase.toStringAsFixed(2);
       }
@@ -166,39 +143,29 @@ class _MultaFormScreenState extends State<MultaFormScreen> {
     });
   }
 
-  void _onTipoChanged(TipoInfraccionModel? t) {
+  void tipoChanged(TipoInfraccionModel? t) {
     setState(() => selectedTipo = t);
     if (t != null) {
-      // Por defecto, montoFinal = montoBase (editable si quieres)
       montoFinalController.text = t.montoBase.toStringAsFixed(2);
     }
   }
 
-  void _onConductorChanged(ConductorModel? c) {
+  void conductorChanged(ConductorModel? c) {
     setState(() {
       selectedConductor = c;
 
-      // Al cambiar conductor: refrescar lista de vehículos
       vehiculosFiltrados = (c?.id != null)
           ? vehiculosAll.where((v) => v.idConductor == c!.id).toList()
           : vehiculosAll;
 
-      // Reset vehiculo seleccionado
       selectedVehiculo = null;
     });
   }
 
   @override
-  void dispose() {
-    lugarController.dispose();
-    fechaMultaController.dispose();
-    montoFinalController.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     final esEditar = item != null;
+    final esPagada = item != null && item!.estado.toUpperCase() == "PAGADA";
 
     return Scaffold(
       backgroundColor: const Color.fromRGBO(247, 249, 252, 1),
@@ -268,7 +235,7 @@ class _MultaFormScreenState extends State<MultaFormScreen> {
                       label: "Conductor",
                       hint: "Seleccione un conductor",
                       icon: Icons.person,
-                      onChanged: _onConductorChanged,
+                      onChanged: conductorChanged,
                       validator: (v) => v == null ? "Seleccione un conductor" : null,
                     ),
 
@@ -310,7 +277,7 @@ class _MultaFormScreenState extends State<MultaFormScreen> {
                       label: "Tipo de infracción",
                       hint: "Seleccione una infracción",
                       icon: Icons.gavel,
-                      onChanged: _onTipoChanged,
+                      onChanged: tipoChanged,
                       validator: (v) => v == null ? "Seleccione un tipo de infracción" : null,
                     ),
 
@@ -336,18 +303,6 @@ class _MultaFormScreenState extends State<MultaFormScreen> {
                     ),
 
                     const SizedBox(height: 14),
-
-                    DropdownField<String>(
-                      value: estadoSeleccionado,
-                      items: estados
-                          .map((e) => DropdownMenuItem(value: e, child: Text(e)))
-                          .toList(),
-                      label: "Estado",
-                      hint: "Seleccione el estado",
-                      icon: Icons.fact_check,
-                      onChanged: (v) => setState(() => estadoSeleccionado = v),
-                      validator: (v) => v == null ? "Seleccione un estado" : null,
-                    ),
 
                     const SizedBox(height: 20),
 
@@ -377,7 +332,6 @@ class _MultaFormScreenState extends State<MultaFormScreen> {
                               if (selectedConductor?.id == null) return;
                               if (selectedVehiculo?.id == null) return;
                               if (selectedTipo?.id == null) return;
-                              if (estadoSeleccionado == null) return;
 
                               final monto = double.parse(montoFinalController.text.trim());
 
@@ -385,15 +339,24 @@ class _MultaFormScreenState extends State<MultaFormScreen> {
                                 fechaMulta: fechaMultaController.text.trim(),
                                 lugar: lugarController.text.trim(),
                                 montoFinal: monto,
-                                estado: estadoSeleccionado!,
+                                estado: "PENDIENTE",
                                 idConductor: selectedConductor!.id!,
                                 idVehiculo: selectedVehiculo!.id!,
                                 idTipoInfraccion: selectedTipo!.id!,
                               );
 
                               if (esEditar) {
-                                nuevo.id = item!.id;
-                                await multaRepo.update(nuevo);
+                                if (esPagada) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text("No se puede editar una multa PAGADA."),
+                                    ),
+                                  );
+                                  return;
+                                } else {
+                                  nuevo.id = item!.id;
+                                  await multaRepo.update(nuevo);
+                                }
                               } else {
                                 await multaRepo.create(nuevo);
                               }
