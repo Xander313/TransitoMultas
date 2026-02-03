@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'screens/RootScreen.dart';
 import 'screens/conductor/conductor_form_screen.dart';
 import 'screens/conductor/conductor_screen.dart';
+import 'screens/infraccion/infraccion_form_screen.dart';
+import 'screens/infraccion/infraccion_screen.dart';
 import 'screens/multa/MultaFormScreen.dart';
 import 'screens/multa/MultaScreedn.dart';
 import 'screens/pago/PagoFormScreen.dart';
@@ -33,6 +35,8 @@ class MyApp extends StatelessWidget {
         '/vehiculo/form': (context) => VehiculoFormsScreen(),
         '/conductor': (context) => ConductorScreen(),
         '/conductor/form': (context) => ConductorFormScreen(),
+        '/tipoInfraccion': (context) => const TipoInfraccionScreen(),
+        '/tipoInfraccion/form': (context) => const TipoInfraccionFormScreen(),
       },
     );
   }
