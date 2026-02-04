@@ -38,11 +38,9 @@ class _PagoFormScreenState extends State<PagoFormScreen> {
   bool yaInicializado = false;
   bool guardado = false;
 
-  // Multas
   List<MultaModel> multas = [];
   MultaModel? selectedMulta;
 
-  // Métodos
   final List<String> metodos = const ["EFECTIVO", "TARJETA", "TRANSFERENCIA"];
   String? metodoSeleccionado;
 
@@ -243,7 +241,6 @@ class _PagoFormScreenState extends State<PagoFormScreen> {
                       onChanged: (v) {
                         setState(() => selectedMulta = v);
                         if (v != null) {
-                          // Autollenar monto (editable)
                           montoPagadoController.text = v.montoFinal.toStringAsFixed(2);
                         }
                       },
@@ -287,7 +284,6 @@ class _PagoFormScreenState extends State<PagoFormScreen> {
 
                     const SizedBox(height: 14),
 
-                    // Selector de archivo
                     FilePickerField(
                       label: "Comprobante (opcional)",
                       fileName: (comprobantePathActual == null || comprobantePathActual!.isEmpty)
@@ -300,7 +296,7 @@ class _PagoFormScreenState extends State<PagoFormScreen> {
                           : null,
                     ),
 
-                    // Preview (imagen/pdf)
+                    //previsualizacion de la imagen
                     DocumentPreview(
                       relativePath: comprobantePathActual,
                       displayName: (comprobantePathActual == null || comprobantePathActual!.isEmpty)
@@ -355,7 +351,7 @@ class _PagoFormScreenState extends State<PagoFormScreen> {
                                 await pagoRepo.create(nuevo);
                               }
 
-                              // Si había un comprobante original y el usuario lo reemplazó/quitó, borrarlo solo al guardar
+                              //para limpiar archivos temporales
                               if (borrarOriginalAlGuardar &&
                                   comprobantePathOriginal != null &&
                                   comprobantePathOriginal!.isNotEmpty &&

@@ -47,10 +47,7 @@ class _VehiculoFormsScreenState extends State<VehiculoFormsScreen> {
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(15),
-        borderSide: const BorderSide(
-          color: Color.fromRGBO(0, 66, 137, 1),
-          width: 2,
-        ),
+        borderSide: const BorderSide(color: Color.fromRGBO(0, 66, 137, 1), width: 2),
       ),
     );
   }
@@ -136,9 +133,7 @@ class _VehiculoFormsScreenState extends State<VehiculoFormsScreen> {
           children: [
             TextFormField(
               controller: placaController,
-              validator: (v) => v == null || v.trim().isEmpty
-                  ? "El campo es requerido"
-                  : null,
+              validator: (v) => v == null || v.trim().isEmpty ? "El campo es requerido" : null,
               decoration: _decoration(
                 label: "Placa",
                 hint: "Ingrese la placa del vehículo",
@@ -148,9 +143,7 @@ class _VehiculoFormsScreenState extends State<VehiculoFormsScreen> {
             const SizedBox(height: 14),
             TextFormField(
               controller: marcaController,
-              validator: (v) => v == null || v.trim().isEmpty
-                  ? "El campo es requerido"
-                  : null,
+              validator: (v) => v == null || v.trim().isEmpty ? "El campo es requerido" : null,
               decoration: _decoration(
                 label: "Marca",
                 hint: "Ingrese la marca del vehículo",
@@ -160,9 +153,7 @@ class _VehiculoFormsScreenState extends State<VehiculoFormsScreen> {
             const SizedBox(height: 14),
             TextFormField(
               controller: modeloController,
-              validator: (v) => v == null || v.trim().isEmpty
-                  ? "El campo es requerido"
-                  : null,
+              validator: (v) => v == null || v.trim().isEmpty ? "El campo es requerido" : null,
               decoration: _decoration(
                 label: "Modelo",
                 hint: "Ingrese el modelo del vehículo",
@@ -172,9 +163,7 @@ class _VehiculoFormsScreenState extends State<VehiculoFormsScreen> {
             const SizedBox(height: 14),
             TextFormField(
               controller: colorController,
-              validator: (v) => v == null || v.trim().isEmpty
-                  ? "El campo es requerido"
-                  : null,
+              validator: (v) => v == null || v.trim().isEmpty ? "El campo es requerido" : null,
               decoration: _decoration(
                 label: "Color",
                 hint: "Ingrese el color del vehículo",
@@ -235,11 +224,7 @@ class _VehiculoFormsScreenState extends State<VehiculoFormsScreen> {
                   ),
                   child: const Row(
                     mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(Icons.cancel),
-                      SizedBox(width: 10),
-                      Text("Cancelar"),
-                    ],
+                    children: [Icon(Icons.cancel), SizedBox(width: 10), Text("Cancelar")],
                   ),
                 ),
               ),

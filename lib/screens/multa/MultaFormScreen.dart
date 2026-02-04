@@ -61,9 +61,9 @@ class _MultaFormScreenState extends State<MultaFormScreen> {
       if (esPagada) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (!mounted) return;
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("Multa PAGADA: no se puede editar.")),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(const SnackBar(content: Text("Multa PAGADA: no se puede editar.")));
         });
       }
       marcaController.text = item!.lugar;
@@ -126,9 +126,7 @@ class _MultaFormScreenState extends State<MultaFormScreen> {
       selectedTipo = preTipo;
 
       vehiculosFiltrados = (selectedConductor?.id != null)
-          ? vehiculosAll
-                .where((v) => v.idConductor == selectedConductor!.id)
-                .toList()
+          ? vehiculosAll.where((v) => v.idConductor == selectedConductor!.id).toList()
           : vehiculosAll;
 
       if (preVeh != null && vehiculosFiltrados.any((v) => v.id == preVeh!.id)) {
@@ -137,8 +135,7 @@ class _MultaFormScreenState extends State<MultaFormScreen> {
         selectedVehiculo = null;
       }
 
-      if (selectedTipo != null &&
-          (modeloController.text.trim().isEmpty || item == null)) {
+      if (selectedTipo != null && (modeloController.text.trim().isEmpty || item == null)) {
         modeloController.text = selectedTipo!.montoBase.toStringAsFixed(2);
       }
 
@@ -197,12 +194,10 @@ class _MultaFormScreenState extends State<MultaFormScreen> {
                       helpText: "Seleccione la fecha de la multa",
                       onChanged: (d) => setState(() => fechaMultaValue = d),
                       validator: (v) {
-                        if (v == null || v.trim().isEmpty)
-                          return "La fecha es obligatoria";
+                        if (v == null || v.trim().isEmpty) return "La fecha es obligatoria";
                         final d = DateTime.tryParse(v.trim());
                         if (d == null) return "Fecha inválida";
-                        if (d.isAfter(DateTime.now()))
-                          return "No puede ser mayor a hoy";
+                        if (d.isAfter(DateTime.now())) return "No puede ser mayor a hoy";
                         return null;
                       },
                     ),
@@ -212,8 +207,7 @@ class _MultaFormScreenState extends State<MultaFormScreen> {
                     TextFormField(
                       controller: marcaController,
                       validator: (v) {
-                        if (v == null || v.trim().isEmpty)
-                          return "El lugar es obligatorio";
+                        if (v == null || v.trim().isEmpty) return "El lugar es obligatorio";
                         if (v.trim().length > 80) return "Máximo 80 caracteres";
                         return null;
                       },
@@ -222,9 +216,7 @@ class _MultaFormScreenState extends State<MultaFormScreen> {
                         hintText: "Ej: Av. Principal y Calle 10",
                         filled: true,
                         fillColor: const Color.fromRGBO(255, 255, 255, 1),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(15),
-                        ),
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(15)),
                       ),
                     ),
 
@@ -236,9 +228,7 @@ class _MultaFormScreenState extends State<MultaFormScreen> {
                           .map(
                             (c) => DropdownMenuItem(
                               value: c,
-                              child: Text(
-                                "${c.nombres} ${c.apellidos} (${c.cedula})",
-                              ),
+                              child: Text("${c.nombres} ${c.apellidos} (${c.cedula})"),
                             ),
                           )
                           .toList(),
@@ -246,8 +236,7 @@ class _MultaFormScreenState extends State<MultaFormScreen> {
                       hint: "Seleccione un conductor",
                       icon: Icons.person,
                       onChanged: conductorChanged,
-                      validator: (v) =>
-                          v == null ? "Seleccione un conductor" : null,
+                      validator: (v) => v == null ? "Seleccione un conductor" : null,
                     ),
 
                     const SizedBox(height: 14),
@@ -258,9 +247,7 @@ class _MultaFormScreenState extends State<MultaFormScreen> {
                           .map(
                             (v) => DropdownMenuItem(
                               value: v,
-                              child: Text(
-                                "${v.placa} - ${v.marca} ${v.modelo}",
-                              ),
+                              child: Text("${v.placa} - ${v.marca} ${v.modelo}"),
                             ),
                           )
                           .toList(),
@@ -270,8 +257,7 @@ class _MultaFormScreenState extends State<MultaFormScreen> {
                           : "Seleccione un vehículo",
                       icon: Icons.directions_car,
                       onChanged: (v) => setState(() => selectedVehiculo = v),
-                      validator: (v) =>
-                          v == null ? "Seleccione un vehículo" : null,
+                      validator: (v) => v == null ? "Seleccione un vehículo" : null,
                     ),
 
                     const SizedBox(height: 14),
@@ -292,20 +278,16 @@ class _MultaFormScreenState extends State<MultaFormScreen> {
                       hint: "Seleccione una infracción",
                       icon: Icons.gavel,
                       onChanged: tipoChanged,
-                      validator: (v) =>
-                          v == null ? "Seleccione un tipo de infracción" : null,
+                      validator: (v) => v == null ? "Seleccione un tipo de infracción" : null,
                     ),
 
                     const SizedBox(height: 14),
 
                     TextFormField(
                       controller: modeloController,
-                      keyboardType: const TextInputType.numberWithOptions(
-                        decimal: true,
-                      ),
+                      keyboardType: const TextInputType.numberWithOptions(decimal: true),
                       validator: (v) {
-                        if (v == null || v.trim().isEmpty)
-                          return "Monto final es obligatorio";
+                        if (v == null || v.trim().isEmpty) return "Monto final es obligatorio";
                         final n = double.tryParse(v.trim());
                         if (n == null) return "Debe ser un número";
                         if (n < 0) return "No puede ser negativo";
@@ -316,9 +298,7 @@ class _MultaFormScreenState extends State<MultaFormScreen> {
                         hintText: "Ej: 150.00",
                         filled: true,
                         fillColor: const Color.fromRGBO(255, 255, 255, 1),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(15),
-                        ),
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(15)),
                       ),
                     ),
 
@@ -333,21 +313,12 @@ class _MultaFormScreenState extends State<MultaFormScreen> {
                             onPressed: () => Navigator.pop(context),
                             style: TextButton.styleFrom(
                               foregroundColor: Colors.white,
-                              backgroundColor: const Color.fromRGBO(
-                                220,
-                                38,
-                                38,
-                                1,
-                              ),
+                              backgroundColor: const Color.fromRGBO(220, 38, 38, 1),
                               padding: const EdgeInsets.symmetric(vertical: 15),
                             ),
                             child: const Row(
                               mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(Icons.cancel),
-                                SizedBox(width: 10),
-                                Text("Cancelar"),
-                              ],
+                              children: [Icon(Icons.cancel), SizedBox(width: 10), Text("Cancelar")],
                             ),
                           ),
                         ),
@@ -362,9 +333,7 @@ class _MultaFormScreenState extends State<MultaFormScreen> {
                               if (selectedVehiculo?.id == null) return;
                               if (selectedTipo?.id == null) return;
 
-                              final monto = double.parse(
-                                modeloController.text.trim(),
-                              );
+                              final monto = double.parse(modeloController.text.trim());
 
                               final nuevo = MultaModel(
                                 fechaMulta: placaController.text.trim(),
@@ -380,9 +349,7 @@ class _MultaFormScreenState extends State<MultaFormScreen> {
                                 if (esPagada) {
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     const SnackBar(
-                                      content: Text(
-                                        "No se puede editar una multa PAGADA.",
-                                      ),
+                                      content: Text("No se puede editar una multa PAGADA."),
                                     ),
                                   );
                                   return;
@@ -400,18 +367,8 @@ class _MultaFormScreenState extends State<MultaFormScreen> {
                             style: TextButton.styleFrom(
                               foregroundColor: Colors.white,
                               backgroundColor: esEditar
-                                  ? const Color.fromRGBO(
-                                      245,
-                                      158,
-                                      11,
-                                      1,
-                                    ) // ámbar editar
-                                  : const Color.fromRGBO(
-                                      0,
-                                      66,
-                                      137,
-                                      1,
-                                    ), // azul guardar
+                                  ? const Color.fromRGBO(245, 158, 11, 1)
+                                  : const Color.fromRGBO(0, 66, 137, 1),
                               padding: const EdgeInsets.symmetric(vertical: 15),
                             ),
                             child: Row(

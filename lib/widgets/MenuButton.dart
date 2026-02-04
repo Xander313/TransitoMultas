@@ -11,7 +11,7 @@ class MenuButton extends StatelessWidget {
     required this.title,
     required this.icon,
     required this.route,
-    this.subtitle = "Ver / administrar",
+    this.subtitle = "Administrar",
   });
 
   @override

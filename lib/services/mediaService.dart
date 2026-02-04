@@ -11,10 +11,9 @@ class MediaService {
     return dir;
   }
 
-  /// Guarda cualquier archivo y devuelve RUTA RELATIVA para SQLite
   static Future<String> saveFile({
     required File source,
-    required String relativeDir, // ej: 'media/images' o 'media/docs'
+    required String relativeDir, //ruta relativa
     required String fileName,
   }) async {
     final dir = await _ensureDir(relativeDir);
@@ -24,10 +23,10 @@ class MediaService {
     }
     await source.copy(dest.path);
 
-    return p.join(relativeDir, fileName); // <- guardar esto en la BDD
+    return p.join(relativeDir, fileName); //ruta relativa
   }
 
-  /// Obtiene el File absoluto a partir de la ruta relativa
+  //ruta relativa para el file
   static Future<File> getFile(String relativePath) async {
     final base = await getApplicationDocumentsDirectory();
     return File(p.join(base.path, relativePath));

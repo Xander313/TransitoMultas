@@ -10,7 +10,7 @@ class RootScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: const Color.fromRGBO(247, 249, 252, 1),
       appBar: AppBar(
-        title: const Text('Inicio'),
+        title: const Text('Agencia Nacional de Tránsito'),
         backgroundColor: const Color.fromRGBO(0, 66, 137, 1),
         foregroundColor: Colors.white,
       ),

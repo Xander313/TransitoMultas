@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../../repository/TipoInfraccionRepository.dart';
 import '../../models/TipoInfraccion.dart';
+import '../../repository/TipoInfraccionRepository.dart';
 
 class TipoInfraccionScreen extends StatefulWidget {
   const TipoInfraccionScreen({super.key});
@@ -29,12 +29,12 @@ class _TipoInfraccionScreenState extends State<TipoInfraccionScreen> {
 
   Future<void> _delete(int id) async {
     final result = await _repository.delete(id);
-    
+
     if (result > 0) {
       _loadData();
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Tipo de infracción eliminado')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Tipo de infracción eliminado')));
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('No se puede eliminar, existen multas relacionadas')),
@@ -49,10 +49,7 @@ class _TipoInfraccionScreenState extends State<TipoInfraccionScreen> {
         title: const Text('Confirmar eliminación'),
         content: Text('¿Eliminar tipo de infracción ${tipo.codigo}?'),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancelar'),
-          ),
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancelar')),
           TextButton(
             onPressed: () {
               Navigator.pop(context);
@@ -95,7 +92,7 @@ class _TipoInfraccionScreenState extends State<TipoInfraccionScreen> {
                               context,
                               '/tipoInfraccion/form',
                               arguments: {'tipo': tipo},
-                            ).then((_) => _loadData()); // ✅ Esto ya está bien
+                            ).then((_) => _loadData());
                           },
                         ),
                         IconButton(
@@ -117,8 +114,7 @@ class _TipoInfraccionScreenState extends State<TipoInfraccionScreen> {
             ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          Navigator.pushNamed(context, '/tipoInfraccion/form')
-              .then((_) => _loadData()); // ✅ ¡Agrega esto!
+          Navigator.pushNamed(context, '/tipoInfraccion/form').then((_) => _loadData());
         },
         backgroundColor: const Color.fromRGBO(0, 66, 137, 1),
         child: const Icon(Icons.add, color: Colors.white),
